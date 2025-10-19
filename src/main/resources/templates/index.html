@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindscape - Tu Espacio Mental</title>
+    
+    <!-- Bootstrap CSS para componentes responsivos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons para iconografía consistente -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* Variables CSS para tema oscuro (predeterminado) */
+        :root {
+            --color-bg: #030303;
+            --color-card: rgba(10, 10, 20, 0.95);
+            --color-text: #EBEBEB;
+            --color-primary-accent: #A084E8;
+            --color-secondary-accent: #00FFFF;
+            --shadow-primary: rgba(160, 132, 232, 0.45);
+            --shadow-secondary: rgba(0, 255, 255, 0.35);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --transition-time: 0.6s;
+        }
+
+        /* Variables CSS para tema claro */
+        body.light-mode {
+            --color-bg: #F0F4F8;
+            --color-card: #FFFFFF;
+            --color-text: #212529;
+            --color-primary-accent: #6C5CE7;
+            --color-secondary-accent: #00BCD4;
+            --shadow-primary: rgba(108, 92, 231, 0.2);
+            --shadow-secondary: rgba(0, 188, 212, 0.1);
+            --border-color: #E0E0E0;
+        }
+
+        /* Estilos base del cuerpo */
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: 'Inter', sans-serif;
+            transition: background-color var(--transition-time) ease-in-out, color var(--transition-time) ease-in-out;
+            min-height: 100vh;
+        }
+        
+        /* Animación sutil de pulso para el logo */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .logo-pulse {
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        /* Contenedor de navbar con curva decorativa */
+        .navbar-wrapper {
+            background-color: var(--color-bg);
+            padding-bottom: 90px;
+            position: relative;
+            z-index: 10;
+            transition: background-color var(--transition-time) ease;
+        }
+
+        /* Efecto de curva holográfica debajo del navbar */
+        .navbar-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background-color: var(--color-bg);
+            border-top-left-radius: 65% 150px;
+            border-top-right-radius: 35% 150px;
+            border-top: 2px solid var(--color-primary-accent);
+            box-shadow: 0 0 20px var(--shadow-secondary);
+            transform: translateY(70px);
+            z-index: 1;
+            transition: background-color var(--transition-time) ease, border-color var(--transition-time) ease, box-shadow var(--transition-time) ease;
+        }
+
+        /* Navbar transparente para el efecto glassmorphism */
+        .navbar {
+            background-color: transparent !important;
+            box-shadow: none;
+            padding-top: 1.5rem;
+        }
+
+        /* Estilos para enlaces de navegación */
+        .navbar-brand, .nav-link {
+            color: var(--color-text) !important;
+            transition: color var(--transition-time) ease;
+        }
+        .navbar-brand {
+            color: var(--color-primary-accent) !important;
+        }
+        .nav-link:hover {
+            color: var(--color-secondary-accent) !important;
+        }
+
+        /* Menú desplegable con efecto glassmorphism */
+        .dropdown-menu {
+            z-index: 1050 !important;
+            background-color: var(--color-card) !important;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 5px 15px var(--shadow-primary);
+        }
+        .dropdown-item {
+            color: var(--color-text) !important;
+            transition: background-color 0.3s;
+        }
+        .dropdown-item:hover {
+            background-color: rgba(160, 132, 232, 0.1) !important;
+            color: var(--color-primary-accent) !important;
+        }
+        
+        /* Botón de cambio de tema */
+        .theme-toggle-switch {
+            cursor: pointer;
+            margin-right: 15px;
+            font-size: 1.6rem;
+            transition: transform 0.5s ease, color 0.5s ease;
+            color: var(--color-text);
+        }
+        .theme-toggle-switch:hover {
+            transform: rotate(360deg) scale(1.15);
+            color: var(--color-secondary-accent);
+        }
+
+        /* Botón principal con efecto de elevación */
+        .btn-primary-accent {
+            background-color: var(--color-primary-accent);
+            border: 1px solid var(--color-primary-accent);
+            color: var(--color-bg);
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            border-radius: 10px;
+            padding: 10px 25px;
+        }
+        .btn-primary-accent:hover {
+            background-color: color-mix(in srgb, var(--color-primary-accent) 90%, black);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px var(--shadow-primary);
+        }
+
+        /* Botón outline para acciones secundarias */
+        .btn-outline-custom {
+            border-color: var(--color-secondary-accent);
+            color: var(--color-secondary-accent);
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+        .btn-outline-custom:hover {
+            background-color: var(--color-secondary-accent);
+            color: var(--color-bg);
+        }
+        
+        /* Sección hero principal */
+        .hero-section {
+            padding: 80px 0;
+            background-color: var(--color-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            margin-top: -30px;
+            box-shadow: 0 15px 40px var(--shadow-primary);
+            position: relative;
+            z-index: 5;
+            backdrop-filter: blur(10px);
+            transition: background-color var(--transition-time) ease, box-shadow var(--transition-time) ease;
+        }
+        .hero-title-accent {
+            color: var(--color-primary-accent);
+            text-shadow: 0 0 15px var(--shadow-primary);
+        }
+        
+        /* Tarjetas de módulos con efecto hover */
+        .card-module {
+            background-color: var(--color-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 5px 20px var(--shadow-primary), inset 0 0 10px rgba(0, 0, 0, 0.2);
+            height: 100%;
+            backdrop-filter: blur(5px);
+        }
+        .card-module:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 30px 60px var(--shadow-primary), 0 0 30px var(--shadow-secondary);
+            border-color: var(--color-secondary-accent);
+        }
+
+        /* Iconos grandes en las tarjetas */
+        .module-icon {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--color-secondary-accent);
+            transition: color 0.6s ease;
+        }
+        /* Color específico para el icono del diario */
+        .module-diario .module-icon {
+            color: var(--color-primary-accent);
+        }
+
+        /* Animaciones de entrada escalonadas */
+        @keyframes fadeInShift {
+            from { opacity: 0; transform: translate(0, 30px) scale(0.95); }
+            to { opacity: 1; transform: translate(0, 0) scale(1); }
+        }
+        .animate-fadeInShift {
+            animation: fadeInShift 1s cubic-bezier(0.165, 0.84, 0.44, 1) both;
+        }
+        
+        /* Retrasos escalonados para las animaciones */
+        .col-lg-3:nth-child(1) .animate-fadeInShift { animation-delay: 0.1s; }
+        .col-lg-3:nth-child(2) .animate-fadeInShift { animation-delay: 0.2s; }
+        .col-lg-3:nth-child(3) .animate-fadeInShift { animation-delay: 0.3s; }
+        .col-lg-3:nth-child(4) .animate-fadeInShift { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de navegación con curva decorativa -->
+    <div class="navbar-wrapper">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg">
+                <!-- Logo con animación de pulso -->
+                <a class="navbar-brand fw-bolder logo-pulse" th:href="@{/}" style="color: var(--color-primary-accent) !important;">
+                    <i class="bi bi-gear-wide-connected me-2"></i> .
+                </a>
+                
+                <!-- Botón para menú móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <!-- Menú de navegación -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        
+                        <!-- Botón de cambio de tema -->
+                        <li class="nav-item">
+                            <i id="themeToggle" class="bi bi-moon-fill theme-toggle-switch" title="Cambiar Tema"></i>
+                        </li>
+
+                        <!-- Menú desplegable de módulos -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-layers-fill me-1"></i> Módulos
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" th:href="@{/diario}"><i class="bi bi-journal-check me-2" style="color: var(--color-primary-accent);"></i> Mi Mapa Mental</a></li>
+                                <li><a class="dropdown-item" th:href="@{/chat}"><i class="bi bi-headset-vr me-2" style="color: var(--color-secondary-accent);"></i> Explorador IA</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" th:href="@{/metas}"><i class="bi bi-graph-up-arrow me-2"></i> Mi Progreso</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Enlace a recursos -->
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/recursos}"><i class="bi bi-lightbulb-fill me-1"></i> Recursos</a>
+                        </li>
+                        
+                        <!-- Botones de autenticación -->
+                        <li class="nav-item d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
+                            <a class="btn btn-outline-custom me-2" th:href="@{/login}">
+                                <i class="bi bi-lock-fill"></i> Acceder
+                            </a>
+                            <a class="btn btn-primary-accent" href="/registro" th:href="@{/registro}">
+                                <i class="bi bi-person-fill-add"></i> Comenzar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Sección hero principal -->
+    <div class="container">
+        <header class="hero-section text-center animate-fadeInShift">
+            <h1 class="display-3 fw-bold">
+                Explora Tu <span class="hero-title-accent">Paisaje Mental</span>
+            </h1>
+            <p class="lead mt-3 mb-5 fw-light text-white-75">
+                Tu espacio personal para el crecimiento mental. Convierte la reflexión en acción y descubre patrones en tu bienestar.
+            </p>
+            <a class="btn btn-primary-accent btn-lg" href="/registro" th:href="@{/registro}">
+                <i class="bi bi-box-arrow-in-right"></i> Inicia Tu Viaje Interior
+            </a>
+        </header>
+    </div>
+
+    <!-- Sección de módulos disponibles -->
+    <section id="modulos" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5 fw-bolder" style="color: var(--color-secondary-accent);">Herramientas para Tu Crecimiento</h2>
+            <div class="row g-4">
+                
+                <!-- Módulo de diario personal -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-module h-100 p-4 module-diario animate-fadeInShift">
+                        <div class="module-icon text-center"><i class="bi bi-journal-text-fill"></i></div>
+                        <h5 class="card-title fw-bold">Mi Mapa Mental</h5>
+                        <p class="card-text text-white-50">Registra y analiza tus pensamientos y emociones. Convierte reflexiones en insights accionables.</p>
+                        <a th:href="@{/diario}" class="btn btn-sm btn-outline-custom mt-auto">Explorar</a>
+                    </div>
+                </div>
+
+                <!-- Módulo de chat con IA -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-module h-100 p-4 module-chatbot animate-fadeInShift">
+                        <div class="module-icon text-center"><i class="bi bi-robot"></i></div>
+                        <h5 class="card-title fw-bold">Explorador IA</h5>
+                        <p class="card-text text-white-50">Conversa con inteligencia artificial para ganar perspectiva y claridad en tus reflexiones.</p>
+                        <a th:href="@{/chat}" class="btn btn-sm btn-primary-accent mt-auto">Conversar</a>
+                    </div>
+                </div>
+
+                <!-- Módulo de recursos -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-module h-100 p-4 module-chatbot animate-fadeInShift">
+                        <div class="module-icon text-center"><i class="bi bi-book-half"></i></div>
+                        <h5 class="card-title fw-bold">Recursos Guiados</h5>
+                        <p class="card-text text-white-50">Accede a ejercicios y materiales creados para apoyar tu desarrollo personal y bienestar.</p>
+                        <a th:href="@{/recursos}" class="btn btn-sm btn-outline-custom mt-auto">Descubrir</a>
+                    </div>
+                </div>
+                
+                <!-- Módulo de progreso -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card card-module h-100 p-4 module-diario animate-fadeInShift">
+                        <div class="module-icon text-center"><i class="bi bi-columns-gap"></i></div>
+                        <h5 class="card-title fw-bold">Mi Progreso</h5>
+                        <p class="card-text text-white-50">Visualiza tu crecimiento y patrones a través del tiempo. Celebra tus avances y aprendizajes.</p>
+                        <a th:href="@{/metas}" class="btn btn-sm btn-primary-accent mt-auto">Ver Progreso</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Pie de página -->
+    <footer class="text-white-50 py-4 mt-5" style="background-color: #000000;">
+        <div class="container text-center">
+            <p><small>&copy;  <i class="bi bi-shield-fill-check"></i> Tu Privacidad Protegida</small></p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JavaScript para componentes interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Lógica para el cambio de tema -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+
+            // Función para aplicar el tema seleccionado
+            const applyTheme = (theme) => {
+                const isLight = theme === 'light-mode';
+                
+                if (isLight) {
+                    body.classList.add('light-mode');
+                    themeToggle.classList.replace('bi-moon-fill', 'bi-sun-fill');
+                    themeToggle.title = 'Cambiar a Tema Oscuro';
+                } else {
+                    body.classList.remove('light-mode');
+                    themeToggle.classList.replace('bi-sun-fill', 'bi-moon-fill');
+                    themeToggle.title = 'Cambiar a Tema Claro';
+                }
+                localStorage.setItem('theme', theme);
+            };
+
+            // Cargar preferencia guardada o usar tema oscuro por defecto
+            const savedTheme = localStorage.getItem('theme') || 'dark-mode';
+            applyTheme(savedTheme);
+
+            // Manejar clic en el botón de cambio de tema
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = body.classList.contains('light-mode') ? 'dark-mode' : 'light-mode';
+                applyTheme(currentTheme);
+            });
+        });
+    </script>
+
+</body>
+</html>

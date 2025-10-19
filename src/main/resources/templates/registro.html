@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Registro</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* ---------------------------------------------------- */
+        /* 1. VARIABLES CSS (Violeta/Cian Fusión - Dark Default)*/
+        /* ---------------------------------------------------- */
+        :root {
+            /* Modo Oscuro (Night Mode) */
+            --color-bg: #030303; 
+            --color-card: rgba(10, 10, 20, 0.95); 
+            --color-text: #EBEBEB;
+            --color-primary-accent: #A084E8; /* Violeta Suave */
+            --color-secondary-accent: #00FFFF; /* Cian Eléctrico */
+            --shadow-primary: rgba(160, 132, 232, 0.45);
+            --shadow-secondary: rgba(0, 255, 255, 0.35);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --transition-time: 0.6s;
+        }
+
+        /* Modo Claro (Light Mode) */
+        body.light-mode {
+            --color-bg: #F0F4F8;
+            --color-card: #FFFFFF;
+            --color-text: #212529;
+            --color-primary-accent: #6C5CE7; 
+            --color-secondary-accent: #00BCD4; 
+            --shadow-primary: rgba(108, 92, 231, 0.2);
+            --shadow-secondary: rgba(0, 188, 212, 0.1);
+            --border-color: #E0E0E0;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 2. ESTILOS BASE Y CONTENEDOR CENTRAL                 */
+        /* ---------------------------------------------------- */
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: 'Inter', sans-serif;
+            transition: background-color var(--transition-time) ease-in-out, color var(--transition-time) ease-in-out;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            flex-direction: column; 
+        }
+        
+        .card-auth {
+            max-width: 450px;
+            width: 100%;
+            background-color: var(--color-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px var(--shadow-primary);
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-time) ease;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 3. INPUTS Y BOTONES              */
+        /* ---------------------------------------------------- */
+        .form-control {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--color-text);
+            transition: all 0.3s ease;
+            height: 50px;
+        }
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--color-secondary-accent);
+            box-shadow: 0 0 0 0.25rem var(--shadow-secondary);
+            color: var(--color-text);
+        }
+        .form-label {
+            color: var(--color-primary-accent);
+            font-weight: 600;
+        }
+        
+        .btn-primary-accent {
+            background-color: var(--color-primary-accent);
+            border: 1px solid var(--color-primary-accent);
+            color: var(--color-bg); 
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            border-radius: 10px;
+            padding: 10px 25px;
+        }
+        .btn-primary-accent:hover {
+            background-color: color-mix(in srgb, var(--color-primary-accent) 90%, black);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--shadow-primary); 
+        }
+
+        /* ---------------------------------------------------- */
+        /* 4. MENSAJES Y SWITCH DE TEMA                        */
+        /* ---------------------------------------------------- */
+        .message-box {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            background-color: rgba(255, 0, 0, 0.1);
+            color: #FF6B6B;
+            border: 1px solid #FF6B6B;
+        }
+        /* ESTILO PARA MENSAJE DE ÉXITO AÑADIDO */
+        .success-message {
+            background-color: rgba(0, 255, 0, 0.1); 
+            color: #4CAF50; 
+            border: 1px solid #4CAF50;
+        }
+
+        .theme-toggle-switch {
+            cursor: pointer;
+            font-size: 1.6rem;
+            color: var(--color-text);
+            position: fixed; 
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: transform 0.5s ease, color 0.5s ease;
+        }
+        .theme-toggle-switch:hover {
+            transform: rotate(360deg) scale(1.15);
+            color: var(--color-secondary-accent);
+        }
+    </style>
+</head>
+<body>
+
+    <i id="themeToggle" class="bi bi-moon-fill theme-toggle-switch" title="Cambiar Tema"></i>
+
+    <div class="card-auth text-center">
+        <h1 class="fw-bolder mb-2" style="color: var(--color-primary-accent);">
+            <i class="bi bi-person-plus-fill me-2"></i> REGISTRO 
+        </h1>
+        <p class="text-white-50 mb-4">Crea tu cuenta para comenzar.</p>
+
+        <div id="messageContainer" class="message-box" style="display: none;"></div>
+        
+        <div th:if="${error}" class="message-box error-message">
+            <p th:text="${error}" class="mb-0"></p>
+        </div>
+
+        <form id="registroForm" th:action="@{/registro}" th:object="${usuario}" method="post">
+        
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre Completo</label>
+                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="correo" class="form-label">Correo Electrónico</label>
+                <input type="email" id="correo" th:field="*{correo}" class="form-control" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="contraseñaHash" class="form-label">Contraseña</label>
+                <input type="password" id="contraseñaHash" th:field="*{contraseñaHash}" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary-accent w-100" id="submitButton">
+                <i class="bi bi-person-check-fill me-2"></i> Registrarme
+            </button>
+        </form>
+
+        <hr class="my-4" style="border-color: var(--border-color);">
+        <p class="text-white-50">
+            ¿Ya tienes una cuenta? <a th:href="@{/login}" class="fw-bold" style="color: var(--color-secondary-accent);">Inicia Sesión</a>
+        </p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('registroForm');
+            const messageContainer = document.getElementById('messageContainer');
+            const submitButton = document.getElementById('submitButton');
+
+            // Función para mostrar el mensaje de éxito simulado
+            const displaySuccessMessage = () => {
+                // Ocultar cualquier error previo de Thymeleaf (si existe)
+                const thymeleafError = document.querySelector('[th\\:if="${error}"]');
+                if (thymeleafError) {
+                    thymeleafError.style.display = 'none';
+                }
+                
+                // Mostrar alerta de éxito visual
+                messageContainer.className = 'message-box success-message';
+                messageContainer.innerHTML = '¡Registro exitoso! Procesando y redirigiendo...';
+                messageContainer.style.display = 'block';
+
+                // Desactivar botón para evitar doble click
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+            };
+
+            // Interceptar el envío del formulario
+            form.addEventListener('submit', (e) => {
+                // Al presionar el botón, mostramos el mensaje de éxito/cargando
+                displaySuccessMessage();
+                
+                // Dejamos que el formulario se envíe.
+                // Spring Boot ahora es responsable de:
+                // 1. Si éxito: Redirigir a /login (return "redirect:/login")
+                // 2. Si falla: Recargar la página con el error (return "registro")
+            });
+
+            // --------------------------------------------------------
+            // LÓGICA DE CAMBIO DE TEMA (DARK/LIGHT MODE)
+            // --------------------------------------------------------
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+
+            const applyTheme = (theme) => {
+                const isLight = theme === 'light-mode';
+                if (isLight) {
+                    body.classList.add('light-mode');
+                    themeToggle.classList.replace('bi-moon-fill', 'bi-sun-fill');
+                    themeToggle.title = 'Cambiar a Tema Oscuro';
+                } else {
+                    body.classList.remove('light-mode');
+                    themeToggle.classList.replace('bi-sun-fill', 'bi-moon-fill');
+                    themeToggle.title = 'Cambiar a Tema Claro';
+                }
+                localStorage.setItem('theme', theme);
+            };
+
+            const savedTheme = localStorage.getItem('theme') || 'dark-mode';
+            applyTheme(savedTheme);
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = body.classList.contains('light-mode') ? 'dark-mode' : 'light-mode';
+                applyTheme(currentTheme);
+            });
+        });
+    </script>
+
+</body>
+</html>

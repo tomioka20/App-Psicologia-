@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis | Perfil de Usuario</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        /* ---------------------------------------------------- */
+        /* 1. VARIABLES CSS (Violeta/Cian Fusión - Dark Default)*/
+        /* ---------------------------------------------------- */
+        :root {
+            /* Modo Oscuro (Night Mode) */
+            --color-bg: #030303; 
+            --color-card: rgba(10, 10, 20, 0.95); 
+            --color-text: #EBEBEB;
+            --color-primary-accent: #A084E8; /* Violeta Suave */
+            --color-secondary-accent: #00FFFF; /* Cian Eléctrico */
+            --shadow-primary: rgba(160, 132, 232, 0.45);
+            --shadow-secondary: rgba(0, 255, 255, 0.35);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --transition-time: 0.6s;
+        }
+
+        /* Modo Claro (Light Mode) */
+        body.light-mode {
+            --color-bg: #F0F4F8;
+            --color-card: #FFFFFF;
+            --color-text: #212529;
+            --color-primary-accent: #6C5CE7; 
+            --color-secondary-accent: #00BCD4; 
+            --shadow-primary: rgba(108, 92, 231, 0.2);
+            --shadow-secondary: rgba(0, 188, 212, 0.1);
+            --border-color: #E0E0E0;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 2. ESTILOS BASE Y CONTENEDOR CENTRAL                 */
+        /* ---------------------------------------------------- */
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            font-family: 'Inter', sans-serif;
+            transition: background-color var(--transition-time) ease-in-out, color var(--transition-time) ease-in-out;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .card-auth {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--color-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 40px var(--shadow-primary);
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-time) ease;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 3. INPUTS Y BOTONES                                  */
+        /* ---------------------------------------------------- */
+        .form-control, .form-control:disabled {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--color-text);
+            transition: all 0.3s ease;
+            height: 50px;
+        }
+        textarea.form-control {
+            height: auto;
+        }
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--color-secondary-accent);
+            box-shadow: 0 0 0 0.25rem var(--shadow-secondary);
+            color: var(--color-text);
+        }
+        .form-label {
+            color: var(--color-primary-accent);
+            font-weight: 600;
+        }
+        
+        .btn-primary-accent {
+            background-color: var(--color-primary-accent);
+            border: 1px solid var(--color-primary-accent);
+            color: var(--color-bg); 
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            border-radius: 10px;
+            padding: 10px 25px;
+        }
+        .btn-primary-accent:hover {
+            background-color: color-mix(in srgb, var(--color-primary-accent) 90%, black);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--shadow-primary); 
+        }
+        
+        /* Botón de Regresar/Cancelar */
+        .btn-back, .btn-secondary-custom {
+            background-color: transparent;
+            border: 1px solid var(--color-primary-accent);
+            color: var(--color-primary-accent);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            padding: 8px 15px;
+        }
+        .btn-back:hover, .btn-secondary-custom:hover {
+            background-color: var(--color-primary-accent);
+            color: var(--color-bg);
+            box-shadow: 0 0 15px var(--shadow-primary);
+        }
+
+        /* Botón de Borrar Cuenta */
+        .btn-danger-custom {
+            background-color: transparent;
+            border: 1px solid #FF6B6B;
+            color: #FF6B6B;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+        .btn-danger-custom:hover {
+            background-color: #FF6B6B;
+            color: var(--color-bg);
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.5);
+        }
+        
+        /* 4. Estilos de la Foto Interactiva */
+        .profile-pic-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            cursor: default; /* Por defecto no es editable */
+            margin: 0 auto;
+        }
+        .profile-pic-container.editable {
+            cursor: pointer;
+        }
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid var(--color-secondary-accent);
+            box-shadow: 0 0 20px var(--shadow-secondary);
+            transition: filter 0.3s ease;
+        }
+        .edit-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: var(--color-secondary-accent);
+            font-size: 2rem;
+            pointer-events: none; /* No debería interferir con el clic del contenedor */
+        }
+
+        .profile-pic-container.editable:hover .edit-overlay {
+            opacity: 1;
+        }
+        .profile-pic-container.editable:hover .profile-pic {
+            filter: brightness(0.8);
+        }
+        
+        /* 5. Estilos del Switch de Tema */
+        .theme-toggle-switch {
+            cursor: pointer;
+            font-size: 1.6rem;
+            color: var(--color-text);
+            position: fixed; 
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: transform 0.5s ease, color 0.5s ease;
+        }
+        .theme-toggle-switch:hover {
+            transform: rotate(360deg) scale(1.15);
+            color: var(--color-secondary-accent);
+        }
+        
+        /* 6. Estilos del menú desplegable */
+        .dropdown-menu-custom {
+            background-color: var(--color-card);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-primary);
+            padding: 10px;
+        }
+        
+        .dropdown-item-custom {
+            color: var(--color-text);
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-item-custom:hover {
+            background-color: rgba(160, 132, 232, 0.1);
+            color: var(--color-primary-accent);
+        }
+        
+        .dropdown-item-custom.delete {
+            color: #FF6B6B;
+        }
+        
+        .dropdown-item-custom.delete:hover {
+            background-color: rgba(255, 107, 107, 0.1);
+            color: #FF6B6B;
+        }
+        
+        .dropdown-toggle-custom {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--color-text);
+            border-radius: 10px;
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-toggle-custom:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--color-secondary-accent);
+        }
+        
+        /* 7. Separadores */
+        .divider {
+            border-top: 1px solid var(--border-color);
+            margin: 25px 0;
+        }
+        /* Para asegurar que el botón de cerrar del modal se vea en modo oscuro */
+        .modal-content .btn-close {
+            filter: invert(1);
+        }
+        body.light-mode .modal-content .btn-close {
+            filter: none;
+        }
+    </style>
+</head>
+<body> 
+    <!-- Botón de cambio de tema -->
+    <i class="bi bi-moon-fill theme-toggle-switch" id="theme-toggle" role="button" title="Cambiar Tema"></i>
+
+    <div class="card-auth">
+        
+        <!-- Título y Menú Desplegable -->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <h1 class="h3 fw-bold text-uppercase d-flex align-items-center" style="color: var(--color-primary-accent);">
+                <i class="bi bi-person-badge me-2"></i> Perfil de Usuario
+            </h1>
+            
+            <div class="d-flex align-items-center">
+                <!-- Botón de Regresar -->
+                <button type="button" id="backButton" class="btn btn-back me-3">
+                    <i class="bi bi-arrow-left-circle-fill me-1"></i> Regresar
+                </button>
+                
+                <!-- Menú Desplegable -->
+                <div class="dropdown">
+                    <button class="btn dropdown-toggle-custom dropdown-toggle" type="button" id="profileMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-list"></i> Menú
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-custom dropdown-menu-end" aria-labelledby="profileMenu">
+                        <!-- Opción para editar que activa el modo de edición -->
+                        <li><a class="dropdown-item dropdown-item-custom" href="#" onclick="toggleView(true);"><i class="bi bi-pencil-fill me-2"></i> Editar Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <!-- Opción para eliminar cuenta (abre modal) -->
+                        <li><a class="dropdown-item dropdown-item-custom delete" href="#" data-bs-toggle="modal" data-bs-target="#deleteAccountModal"><i class="bi bi-trash-fill me-2"></i> Eliminar Cuenta</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. Mensajes de Éxito o Error (Del backend) -->
+        <div th:if="${mensaje}" class="message-box" th:classappend="${tipoMensaje == 'success' ? 'alert alert-success' : 'alert alert-danger'}">
+            <p class="mb-0" th:text="${mensaje}"></p>
+        </div>
+        
+        <!-- Definición de la URL placeholder por defecto -->
+        <th:block th:with="defaultPlaceholder='https://placehold.co/120x120/1a1a2e/ffffff?text=Praxis'">
+        
+        <!-- ********************************************** -->
+        <!-- ********* 2. VISTA DE PERFIL (READ-ONLY) ******** -->
+        <!-- ********************************************** -->
+        <div id="view-mode">
+            <div class="row mb-4">
+                
+                <!-- Columna de Foto y Correo -->
+                <div class="col-md-4 text-center">
+                    
+                    <!-- Imagen de Perfil Estática - Muestra los datos directamente desde el objeto usuario -->
+                    <div class="profile-pic-container mx-auto mb-3">
+                        <img th:src="*{usuario.fotoUrl != null and usuario.fotoUrl != '' ? usuario.fotoUrl : defaultPlaceholder}"
+                             alt="Foto de Perfil"
+                             class="profile-pic" id="viewProfilePic" />
+                        <div class="edit-overlay"></div>
+                    </div>
+
+                    <!-- Correo -->
+                    <p class="text-secondary small">
+                        <i class="bi bi-envelope-fill me-1"></i> Correo: <br>
+                        <span class="text-break fw-bold" th:text="*{usuario.correo}" id="viewCorreo">correo@ejemplo.com</span>
+                    </p>
+                    
+                    <button type="button" class="btn btn-primary-accent w-100 mt-2" onclick="toggleView(true);">
+                        <i class="bi bi-pencil-fill me-2"></i> Editar Perfil
+                    </button>
+                </div>
+                
+                <!-- Columna de Datos -->
+                <div class="col-md-8">
+                    
+                    <!-- Nombre principal - Muestra los datos directamente desde el objeto usuario -->
+                    <h2 class="h4 fw-bold mb-4" th:text="*{usuario.nombre}" id="viewNombre">Nombre del Usuario</h2>
+                    
+                    <!-- Campo Nombre de Usuario -->
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Nombre de Usuario</label>
+                        <p class="lead fw-normal mb-0" th:text="*{usuario.nombre}" id="displayNombre">Nombre del Usuario</p>
+                        <div class="divider"></div>
+                    </div>
+
+                    <!-- Campo Biografía/Descripción -->
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Biografía/Descripción</label>
+                        <!-- Muestra los datos directamente desde el objeto usuario -->
+                        <p class="text-light" th:text="*{usuario.descripcion != null and usuario.descripcion != '' ? usuario.descripcion : 'Sin descripción.'}" id="displayDescripcion" style="white-space: pre-wrap;">Cuéntanos un poco sobre ti.</p>
+                        <div class="divider"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ******************************************** -->
+        <!-- ********* 3. FORMULARIO DE EDICIÓN ********* -->
+        <!-- ******************************************** -->
+        <form th:action="@{/perfil/editar}" th:object="${usuario}" method="post" id="edit-mode" style="display: none;">
+            
+            <input type="hidden" th:field="*{id}" />
+            
+            <div class="row mb-4">
+                
+                <!-- Columna de Foto y Correo (en Edición) -->
+                <div class="col-md-4 text-center">
+                    
+                    <!-- Imagen de Perfil Interactiva (Cargada desde el objeto usuario) -->
+                    <div class="profile-pic-container editable mx-auto mb-3" id="editProfilePicContainer">
+                        <img th:src="*{fotoUrl != null and fotoUrl != '' ? fotoUrl : defaultPlaceholder}"
+                             alt="Foto de Perfil"
+                             class="profile-pic" id="editProfilePic" />
+                        <div class="edit-overlay">
+                            <i class="bi bi-camera-fill"></i>
+                        </div>
+                    </div>
+
+                    <!-- Input de archivo oculto para la carga -->
+                    <input type="file" id="fotoFile" accept="image/png, image/jpeg, image/gif" style="display:none;">
+
+                    <!-- Campo oculto que almacenará la cadena Base64 para el backend -->
+                    <input type="hidden" th:field="*{fotoUrl}" id="fotoUrlBase64" />
+                         
+                    <!-- Correo (No editable) -->
+                    <p class="text-secondary small">
+                        <i class="bi bi-envelope-fill me-1"></i> Correo: <br>
+                        <span class="text-break" th:text="*{correo}">correo@ejemplo.com</span>
+                    </p>
+                    
+                </div>
+                
+                <!-- Columna de Campos Editables -->
+                <div class="col-md-8">
+                    
+                    <!-- Campo Nombre -->
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre de Usuario</label>
+                        <input type="text" th:field="*{nombre}" id="nombre" class="form-control" required>
+                    </div>
+                    
+                    <!-- Campo Biografía/Descripción -->
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Biografía/Descripción</label>
+                        <textarea th:field="*{descripcion}" id="descripcion" class="form-control" rows="3" placeholder="Cuéntanos un poco sobre ti (máx 255 caracteres)"></textarea>
+                    </div>
+
+                    <p class="form-text" style="color: var(--color-secondary-accent);">Haz clic en la foto de arriba para cambiarla.</p>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary-custom me-2" onclick="toggleView(false);">
+                            <i class="bi bi-x-circle-fill me-2"></i> Cancelar
+                        </button>
+                        
+                        <button type="submit" class="btn btn-primary-accent flex-grow-1">
+                            <i class="bi bi-save-fill me-2"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+        </form>
+        
+        </th:block>
+
+    </div>
+    
+    <!-- Modal de Confirmación para Eliminar Cuenta -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--color-card); color: var(--color-text); border: 1px solid var(--border-color);">
+                <div class="modal-header border-bottom" style="border-color: var(--border-color) !important;">
+                    <h5 class="modal-title text-danger" id="deleteAccountModalLabel">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirmar Eliminación de Cuenta
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar tu cuenta permanentemente? Esta acción no se puede deshacer y se perderán todos tus datos.</p>
+                    <p class="fw-bold">Para confirmar, escribe <span class="text-danger">BORRAR CUENTA</span> en el campo de abajo:</p>
+                    
+                    <!-- Elemento de error dentro del modal -->
+                    <div id="modal-error-message" class="alert alert-danger p-2 small mt-2 d-none" role="alert"></div>
+                    
+                    <form th:action="@{/perfil/borrar}" method="post" id="deleteAccountForm">
+                        <div class="mb-3">
+                            <input type="text" name="confirmacion" id="confirmacionModal" class="form-control" placeholder="BORRAR CUENTA" required>
+                        </div>
+                        <!-- Botón submit para enviar el formulario dentro del modal -->
+                        <button type="submit" class="btn btn-danger-custom w-100 mt-2">
+                            <i class="bi bi-trash-fill me-2"></i> Eliminar Cuenta
+                        </button>
+                    </form>
+                </div>
+                <div class="modal-footer border-top" style="border-color: var(--border-color) !important;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para cambiar entre el modo de vista y el modo de edición
+        function toggleView(isEditing) {
+            const viewMode = document.getElementById('view-mode');
+            const editMode = document.getElementById('edit-mode');
+            const editButton = document.querySelector('[onclick="toggleView(true);"]');
+            
+            if (isEditing) {
+                // Modo Edición
+                viewMode.style.display = 'none';
+                editMode.style.display = 'block';
+                // Ocultar el botón de editar del View Mode
+                if (editButton) editButton.style.display = 'none';
+                
+            } else {
+                // Modo Vista
+                editMode.style.display = 'none';
+                viewMode.style.display = 'block';
+                if (editButton) editButton.style.display = 'block';
+                
+                // Nota: Si el servidor no hace un redirect, los datos en el modo vista 
+                // se actualizarán automáticamente después de un guardado exitoso debido al 
+                // motor de plantillas (Thymeleaf) al recargar la página, pero en un
+                // entorno puramente frontend, deberías copiar los valores de los inputs a los displays.
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const fotoFileInput = document.getElementById('fotoFile');
+            const fotoUrlBase64Input = document.getElementById('fotoUrlBase64');
+            const defaultPlaceholder = 'https://placehold.co/120x120/1a1a2e/ffffff?text=Praxis';
+            
+            // Elementos de la foto de perfil
+            const editProfilePicContainer = document.getElementById('editProfilePicContainer');
+            const viewProfilePic = document.getElementById('viewProfilePic');
+            const editProfilePic = document.getElementById('editProfilePic');
+
+            // Elementos del tema
+            const body = document.body;
+            const themeToggle = document.getElementById('theme-toggle');
+            
+            // Botón de Regresar
+            const backButton = document.getElementById('backButton');
+
+            // --- Inicialización y Lógica del Tema ---
+            
+            // Iniciar en modo Vista (asegurar estado inicial)
+            document.getElementById('edit-mode').style.display = 'none';
+            document.getElementById('view-mode').style.display = 'block';
+            
+            // Cargar preferencia de tema
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'light-mode') {
+                body.classList.add('light-mode');
+                themeToggle.classList.remove('bi-moon-fill');
+                themeToggle.classList.add('bi-sun-fill');
+            }
+
+            themeToggle.addEventListener('click', function() {
+                body.classList.toggle('light-mode');
+                if (body.classList.contains('light-mode')) {
+                    localStorage.setItem('theme', 'light-mode');
+                    themeToggle.classList.remove('bi-moon-fill');
+                    themeToggle.classList.add('bi-sun-fill');
+                } else {
+                    localStorage.setItem('theme', 'dark-mode');
+                    themeToggle.classList.remove('bi-sun-fill');
+                    themeToggle.classList.add('bi-moon-fill');
+                }
+            });
+            
+            // --- Lógica del Botón Regresar ---
+            if (backButton) {
+                backButton.addEventListener('click', function() {
+                    window.history.back();
+                });
+            }
+
+            // --- Lógica de la Foto de Perfil (Carga de Archivo en Edit Mode) ---
+
+            // 1. Activar el input de archivo al hacer clic en el contenedor de la foto (Solo en modo edición)
+            if (editProfilePicContainer) {
+                editProfilePicContainer.addEventListener('click', function() {
+                    // Asegurar que solo funcione si la edición está visible
+                    if (document.getElementById('edit-mode').style.display === 'block') {
+                         fotoFileInput.click();
+                    }
+                });
+            }
+            
+            // 2. Manejar la selección del archivo y conversión a Base64
+            fotoFileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                if (file.size > maxSize) {
+                    console.error("El archivo es demasiado grande. El tamaño máximo recomendado es 2MB.");
+                    event.target.value = null; 
+                    return; 
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const base64String = e.target.result;
+                    
+                    // Actualizar la previsualización en ambos divs de imagen
+                    viewProfilePic.src = base64String;
+                    editProfilePic.src = base64String;
+
+                    // Actualizar el campo oculto que se enviará al servidor
+                    fotoUrlBase64Input.value = base64String; 
+                };
+
+                reader.readAsDataURL(file);
+            });
+            
+            // 3. Fallback para errores de carga inicial (si el Base64 de la DB está roto)
+            function setupImageErrorFallback(imgElement) {
+                imgElement.onerror = function() {
+                    console.error('Error al cargar la imagen Base64 o la URL inicial. Usando placeholder.');
+                    imgElement.src = defaultPlaceholder;
+                };
+            }
+            // Ejecutar el fallback para ambas imágenes al inicio
+            setupImageErrorFallback(viewProfilePic);
+            setupImageErrorFallback(editProfilePic);
+
+
+            // --- Lógica de Validación de Eliminación de Cuenta (SOLO MODAL) ---
+            
+            const DANGER_CONFIRMATION_PHRASE = 'BORRAR CUENTA';
+
+            // Función genérica para validar la eliminación
+            function validateDeletionForm(e, confirmationInput, errorMessageElement) {
+                if (confirmationInput.value !== DANGER_CONFIRMATION_PHRASE) {
+                    e.preventDefault();
+                    
+                    // Mostrar error en el elemento específico
+                    errorMessageElement.textContent = `Error: Debes escribir exactamente "${DANGER_CONFIRMATION_PHRASE}" para confirmar.`;
+                    errorMessageElement.classList.remove('d-none');
+                    confirmationInput.focus();
+                } else {
+                    // Ocultar error si la validación es correcta
+                    errorMessageElement.classList.add('d-none');
+                }
+            }
+
+            // 4. Validación para el formulario dentro del Modal
+            const deleteAccountForm = document.getElementById('deleteAccountForm');
+            if (deleteAccountForm) {
+                const confirmationInputModal = document.getElementById('confirmacionModal');
+                const errorMessageElementModal = document.getElementById('modal-error-message');
+                deleteAccountForm.addEventListener('submit', function(e) {
+                    validateDeletionForm(e, confirmationInputModal, errorMessageElementModal);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
