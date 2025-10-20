@@ -8,10 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Clase de Entidad que representa a un usuario en la base de datos.
- * Implementa UserDetails de Spring Security para facilitar la autenticación.
- */
+
 @Entity
 @Table(name = "usuarios")
 public class Usuario implements UserDetails {
@@ -30,17 +27,13 @@ public class Usuario implements UserDetails {
     private String contraseñaHash;
 
     @Column(nullable = false)
-    private String rol; // Mantenemos el rol para Spring Security, pero lo ocultamos en la vista
+    private String rol; 
 
-    // CORRECCIÓN CLAVE PARA POSTGRESQL: 
-    // Para almacenar la cadena Base64 (texto largo), usamos columnDefinition = "TEXT".
-    // Esto es el equivalente funcional de @Lob en el contexto de PostgreSQL, 
-    // pero evita el error "Large Objects may not be used in auto-commit mode" 
-    // que ocurre con el tipo CLOB/Large Object.
+
     @Column(name = "foto_url", columnDefinition = "TEXT") 
     private String fotoUrl; 
 
-    @Column(columnDefinition = "TEXT") // Columna para la descripción (biografía)
+    @Column(columnDefinition = "TEXT") 
     private String descripcion; 
 
     // Constructores, Getters y Setters
