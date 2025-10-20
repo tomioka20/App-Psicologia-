@@ -3,10 +3,7 @@ package Modelo;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * Entidad JPA para almacenar entradas del diario.
- * Se han añadido campos de auditoría (fechas) y la referencia a un usuario.
- */
+
 @Entity
 @Table(name = "entradas_diario")
 public class EntradaDiario {
@@ -15,19 +12,13 @@ public class EntradaDiario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FIX 1: Cambiado a Long para que coincida con el ID de la entidad Usuario.
-    // NOTA: Para una práctica JPA óptima, este campo debería ser un @ManyToOne a la entidad Usuario.
+  
     @Column(name = "usuario_id", nullable = false)
     private Long usuarioId; 
 
-    // Emoción asociada a la entrada
     @Column(nullable = false)
     private String emocion;
 
-    // FIX 2: Se ELIMINÓ la anotación @Lob para evitar que Hibernate active el
-    // manejo de Large Objects (CLOBs) de PostgreSQL, lo cual requiere desactivar
-    // el modo auto-commit y provoca el error.
-    // Solo se mantiene columnDefinition="TEXT" para usar el tipo nativo de PostgreSQL.
     @Column(columnDefinition = "TEXT", nullable = false)
     private String descripcion;
     
