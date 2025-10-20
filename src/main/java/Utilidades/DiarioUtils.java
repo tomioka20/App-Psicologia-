@@ -2,25 +2,16 @@ package Utilidades;
 
 import org.springframework.stereotype.Component;
 
-/**
- * Clase de utilidad para el módulo Diario.
- * Contiene métodos estáticos que pueden ser accedidos directamente desde Thymeleaf
- * para realizar transformaciones de datos o lógica de presentación simple (como mapeo de emojis).
- */
-@Component("DiarioUtils") // Nombre del bean para referenciar en Thymeleaf: T(DiarioUtils)
+
+@Component("DiarioUtils") 
 public class DiarioUtils {
 
-    /**
-     * Mapea el nombre de una emoción a su correspondiente emoji Unicode.
-     * @param emocion El nombre de la emoción (String).
-     * @return El emoji correspondiente o un icono de nota por defecto.
-     */
+    
     public static String getEmoji(String emocion) {
         if (emocion == null) {
-            return "📝"; // Icono de nota por defecto
+            return "📝"; 
         }
         
-        // Mapeo de emojis basado en las constantes definidas en el frontend
         switch (emocion) {
             case "Felicidad":
                 return "😊";
