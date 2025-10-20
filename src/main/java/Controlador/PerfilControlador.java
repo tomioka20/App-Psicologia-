@@ -16,9 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
-/**
- * Controlador dedicado a la gestión de la vista, edición y borrado del perfil del usuario.
- */
+
 @Controller
 public class PerfilControlador {
 
@@ -29,10 +27,7 @@ public class PerfilControlador {
         this.usuarioService = usuarioService;
     }
 
-    /**
-     * Obtiene el objeto Usuario completo actualmente autenticado de la DB.
-     * @return El objeto Usuario (modelo) completo o null si no está autenticado o no existe en la DB.
-     */
+    
     private Optional<Usuario> getAuthenticatedUserFromDb() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
@@ -95,7 +90,7 @@ public class PerfilControlador {
 
         Usuario usuarioActual = usuarioActualOpt.get();
         
-        // Verificación de seguridad (el ID del formulario debe coincidir con el de la sesión)
+      
         if (!usuarioActual.getId().equals(usuarioForm.getId())) {
              redirectAttributes.addFlashAttribute("mensaje", "Error: Intento de edición no autorizado.");
              redirectAttributes.addFlashAttribute("tipoMensaje", "error");
@@ -103,9 +98,9 @@ public class PerfilControlador {
         }
         
         try {
-            // Llama al servicio para actualizar los campos interactivos
+            
             usuarioService.actualizarPerfil(
-                usuarioActual.getId(), // Usamos el ID seguro de la sesión
+                usuarioActual.getId(), 
                 usuarioForm.getNombre(), 
                 usuarioForm.getDescripcion(), 
                 usuarioForm.getFotoUrl()
@@ -122,7 +117,7 @@ public class PerfilControlador {
         return "redirect:/perfil";
     }
 
-    // 3. Procesar el borrado de la cuenta
+
     @PostMapping("/perfil/borrar")
     public String borrarCuenta(@RequestParam("confirmacion") String confirmacion, RedirectAttributes redirectAttributes) {
         
