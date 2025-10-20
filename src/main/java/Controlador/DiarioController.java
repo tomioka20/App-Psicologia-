@@ -18,10 +18,7 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Controlador Spring MVC para el módulo del Diario.
- * Maneja la vista principal y las operaciones CRUD, incluyendo filtros por usuario autenticado.
- */
+
 @Controller
 @RequestMapping("/diario")
 public class DiarioController {
@@ -35,11 +32,6 @@ public class DiarioController {
         this.usuarioService = usuarioService;
     }
 
-    /**
-     * Obtiene el objeto Usuario autenticado completo.
-     * @return El objeto Usuario.
-     * @throws IllegalStateException Si el usuario no está autenticado o no se encuentra en la DB.
-     */
     private Usuario getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         
@@ -56,22 +48,10 @@ public class DiarioController {
                 .orElseThrow(() -> new IllegalStateException("Usuario autenticado no encontrado en DB."));
     }
     
-    /**
-     * Obtiene el ID (Long) del usuario autenticado a partir del objeto Usuario.
-     * @return El ID del usuario.
-     */
     private Long getAuthenticatedUserId() {
         return getAuthenticatedUser().getId();
     }
 
-
-    /**
-     * Muestra la página principal del diario con la lista de entradas del usuario autenticado.
-     * **MEJORA:** Ahora pasa el nombre del usuario al modelo para el saludo personalizado.
-     * @param model Objeto Model de Spring para pasar datos a Thymeleaf.
-     * @param notaId Opcional. ID de la entrada a seleccionar/mostrar al cargar la página.
-     * @return Nombre de la plantilla Thymeleaf (diario.html).
-     */
     @GetMapping
     public String verDiario(Model model, @RequestParam(required = false) Long notaId) {
         try {
@@ -102,12 +82,7 @@ public class DiarioController {
         }
     }
 
-    /**
-     * Maneja la creación de una nueva entrada.
-     * @param emocion La emoción asociada a la entrada.
-     * @param descripcion El contenido de la entrada.
-     * @return ResponseEntity con el ID de la entrada creada y estado HTTP 201.
-     */
+    
     @PostMapping("/crear")
     @ResponseBody
     public ResponseEntity<Map<String, Long>> crearEntrada(
@@ -134,13 +109,7 @@ public class DiarioController {
         }
     }
 
-    /**
-     * Maneja la actualización de una entrada existente.
-     * @param id El ID de la entrada a actualizar.
-     * @param emocion La nueva emoción.
-     * @param descripcion La nueva descripción.
-     * @return ResponseEntity con el estado HTTP.
-     */
+   
     @PostMapping("/actualizar")
     @ResponseBody
     public ResponseEntity<Void> actualizarEntrada(
@@ -169,23 +138,19 @@ public class DiarioController {
         }
     }
 
-    /**
-     * Maneja la eliminación de una entrada.
-     * @param id El ID de la entrada a eliminar.
-     * @return ResponseEntity con el estado HTTP.
-     */
+ 
     @DeleteMapping("/eliminar/{id}")
     @ResponseBody
     public ResponseEntity<Void> eliminarEntrada(@PathVariable Long id) {
         try {
             Long userId = getAuthenticatedUserId();
 
-            // Usamos findByIdAndUsuarioId para asegurar que solo el dueño pueda eliminar
+           
             Optional<EntradaDiario> entradaOpt = entradaDiarioRepository.findByIdAndUsuarioId(id, userId);
             
             if (entradaOpt.isPresent()) {
                 entradaDiarioRepository.deleteById(id);
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204 No Content
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT); 
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND); 
             }
